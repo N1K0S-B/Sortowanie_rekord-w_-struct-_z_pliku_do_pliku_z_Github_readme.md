@@ -1,52 +1,84 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+ 
 using namespace std;
-
-struct Person
+ 
+class Person
 {
-    string im;
-    string naz;
-    int nr;
+    string firstName;
+    string lastName;
+    int age;
+ 
+public:
+ 
+    // Wczytywanie z klawiatury
+    void read()
+    {
+        cin >> firstName >> lastName >> age;
+    }
+ 
+    // Wczytywanie z pliku
+    void readFromFile(ifstream &file)
+    {
+        file >> firstName >> lastName >> age;
+    }
+ 
+    // Wypisywanie na ekran
+    void display()
+    {
+        cout << firstName << " "
+<< lastName << " "
+<< age << endl;
+    }
+ 
+    // Zapisywanie do pliku
+    void saveToFile(ofstream &file)
+    {
+        file << firstName << " "
+<< lastName << " "
+<< age << endl;
+    }
+ 
+    // Pobieranie nazwiska do sortowania
+    string getLastName()
+    {
+        return lastName;
+    }
 };
-
-int readData(Person students[])
+ 
+int main()
 {
+    Person students[30];
+ 
     ifstream file("uczniowie.txt");
-
+ 
     if (!file)
     {
         cout << "Nie mozna otworzyc pliku uczniowie.txt!" << endl;
         return 0;
     }
-
+ 
     int count = 0;
-
-    while (count < 30)
+ 
+    // Wczytywanie maksymalnie 30 osob
+    while (count < 30 && file)
     {
-        if (file >> students[count].im >> students[count].naz >> students[count].nr)
-        {
+        students[count].readFromFile(file);
+ 
+        if (file)
             count++;
-        }
-        else
-        {
-            break;
-        }
     }
-
+ 
     file.close();
-
-    return count;
-}
-
-void sortData(Person students[], int count)
-{
+ 
+    // Sortowanie wedlug nazwiska
     for (int i = 0; i < count - 1; i++)
     {
         for (int j = 0; j < count - 1 - i; j++)
         {
-            if (students[j].naz > students[j + 1].naz)
+            if (students[j].getLastName() >
+                students[j + 1].getLastName())
             {
                 Person temp = students[j];
                 students[j] = students[j + 1];
@@ -54,60 +86,36 @@ void sortData(Person students[], int count)
             }
         }
     }
-}
-
-void displayData(Person students[], int count)
-{
-    cout << "Posortowani uczniowie:" << endl;
-
+ 
+    // Wyświetlanie wyniku w konsoli
+    cout << "=================================" << endl;
+    cout << "       POSORTOWANI UCZNIOWIE" << endl;
+    cout << "=================================" << endl;
+ 
     for (int i = 0; i < count; i++)
     {
-        cout << students[i].im << " "
-<< students[i].naz << " "
-<< students[i].nr << endl;
+        students[i].display();
     }
-}
-
-void saveData(Person students[], int count)
-{
-    ofstream file("wynik.txt");
-
-    if (!file)
+ 
+    // Zapisywanie do pliku
+    ofstream outputFile("wynik.txt");
+ 
+    if (!outputFile)
     {
         cout << "Nie mozna utworzyc pliku wynik.txt!" << endl;
-        return;
-    }
-
-    for (int i = 0; i < count; i++)
-    {
-        file << students[i].im << " "
-<< students[i].naz << " "
-<< students[i].nr << endl;
-    }
-
-    file.close();
-}
-
-int main()
-{
-    Person students[30];
-
-    int count = readData(students);
-
-    if (count == 0)
-    {
-        cout << "Brak danych." << endl;
         return 0;
     }
-
-    sortData(students, count);
-
-    displayData(students, count);
-
-    saveData(students, count);
-
-    cout << endl;
+ 
+    for (int i = 0; i < count; i++)
+    {
+        students[i].saveToFile(outputFile);
+    }
+ 
+    outputFile.close();
+ 
+    // Informacja w konsoli
+    cout << "=================================" << endl;
     cout << "Wynik zostal zapisany do pliku wynik.txt." << endl;
-
+ 
     return 0;
 }
